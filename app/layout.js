@@ -1,5 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
+import DiscountBanner from "@/components/DiscountBanner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,7 +13,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <Header />
+        <DiscountBanner />
+
+        {/* content */}
+        <div className="min-h-[84dvh] w-full flex justify-center items-center">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }
