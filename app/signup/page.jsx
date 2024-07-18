@@ -40,6 +40,19 @@ const page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    http.post("/signup", details).then((res) => {
+      setDetails({ email: "", password: "" });
+
+      router.push("/verify");
+
+      toast.success(res.data.message);
+    });
+
+    setDetails({ email: "", password: "" });
+
+    router.push("/verify");
+
+    setDetails({ name: "", email: "", password: "" });
   };
 
   return (

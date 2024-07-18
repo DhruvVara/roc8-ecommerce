@@ -16,6 +16,17 @@ const page = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    http.post("/login", details).then((res) => {
+      setDetails({ email: "", password: "" });
+      if (!res.data.data.verified) {
+        router.push("/verify");
+      } else {
+        router.push("/");
+      }
+      toast.success(res.data.message);
+    });
+
+    setDetails({ email: "", password: "" });
   };
 
   const fields = [
