@@ -12,11 +12,18 @@ export async function POST(req) {
   try {
     const { name, email, password } = await req.json();
 
+    if (!name || name.length < 3) {
+      return jsonResponse(Response, 400, success, message.common.nameLength);
+    }
+
+    if (!password || password.length < 5) {
+      return jsonResponse(Response, 400, success, message.common.passwordLength);
+    }
 
     // checking where email existed or not
     const user = await prisma.user.findUnique({
       where: {
-        email,
+        email: email.toLowerCase(),
       },
     });
 
@@ -34,7 +41,7 @@ export async function POST(req) {
     const createUser = await prisma.user.create({
       data: {
         name,
-        email,
+        email: email.toLowerCase(),
         password: hashPassword,
         otp,
       },
@@ -54,7 +61,7 @@ export async function POST(req) {
     return jsonResponse(
       Response,
       500,
-      status,
+      success,
       message.common.serverError,
       error.message
     );

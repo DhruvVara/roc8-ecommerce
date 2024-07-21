@@ -2,10 +2,16 @@
 
 import React from "react";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { http } from "@/utils/axiosInstance";
+import toast from "react-hot-toast";
 
 const Header = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+
   return (
-    <div className="h-[12dvh] px-[50px] pb-2 relative flex justify-between items-end">
+    <div className="h-[4.5rem] px-[50px] pb-2 relative flex justify-between items-end">
       <h3 className="uppercase font-bold text-[1.5rem]">ecommerce</h3>
 
       <ul className="flex gap-10 font-semibold">
@@ -26,7 +32,20 @@ const Header = () => {
       <div className="absolute top-1 right-5 flex gap-4 text-[12px]">
         <h3>Help</h3>
         <h3>Orders & Returns</h3>
-        <h3>Hi, John</h3>
+        {pathname === "/" && (
+          <button
+            onClick={() =>
+              http.delete("/logout", {}).then((res) => {
+                if (!res.error) {
+                  toast.success(res.data.message);
+                  router.push("/login");
+                }
+              })
+            }
+          >
+            Logout
+          </button>
+        )}
       </div>
     </div>
   );

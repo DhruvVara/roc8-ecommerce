@@ -9,9 +9,5 @@ export function VerifyUser(token) {
     return jsonResponse(Resposne, 401, false, message.common.unauthorised);
   }
 
-  if (!decode.verified) {
-    return Response.redirect(new URL("/verify", req.url));
-  }
-
   return decode;
 }

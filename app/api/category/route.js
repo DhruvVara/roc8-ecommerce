@@ -2,6 +2,7 @@ import { jsonResponse } from "@/utils/jsonResponse";
 import { message } from "@/utils/message";
 import { VerifyUser } from "@/utils/verifyUser";
 import { PrismaClient } from "@prisma/client";
+import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
@@ -13,7 +14,7 @@ export async function GET(req) {
     const url = new URL(req.url);
     const searchparams = new URLSearchParams(url.searchParams);
     const page = searchparams.get("page");
-    const limit = 5;
+    const limit = 6;
     const skip = (page - 1) * limit;
 
     const category = await prisma.$transaction([
@@ -30,7 +31,7 @@ export async function GET(req) {
       200,
       success,
       message.common.fetchSuccessfully,
-      { totalPage: Math.ceil(category[0] / 5), category: category[1] }
+      { totalPage: Math.ceil(category[0] / limit), category: category[1] }
     );
   } catch (error) {
     // console.error(error);
@@ -68,7 +69,7 @@ export async function PUT(req) {
       data: {
         categories: {
           disconnect: existingUser.categories,
-          connect: selectedCategories.map((id) => ({ id })),
+          connect: selectedCategories,
         },
       },
       include: {
@@ -76,7 +77,6 @@ export async function PUT(req) {
       },
     });
 
-    // console.log(user);
     success = true;
     return jsonResponse(
       Response,
@@ -86,6 +86,54 @@ export async function PUT(req) {
     );
   } catch (error) {
     console.error("Error updating user categories:", error.message);
+    return jsonResponse(
+      Response,
+      500,
+      success,
+      message.common.serverError,
+      error.message
+    );
+  }
+}
+
+export async function POST(req) {
+  let success = false;
+  try {
+    for (let a = 0; a < 100; a++) {
+      const newCategory = faker.helpers.unique(faker.commerce.productName);
+      await prisma.category.create({ data: { name: newCategory } });
+    }
+    return jsonResponse(
+      Response,
+      200,
+      true,
+      message.common.updateSuccessfully,
+      "data added"
+    );
+  } catch (error) {
+    // console.log(error.message);
+    return jsonResponse(
+      Response,
+      500,
+      success,
+      message.common.serverError,
+      error.message
+    );
+  }
+}
+
+export async function DELETE(req) {
+  try {
+    const deleteResult = await prisma.category.deleteMany();
+
+    return jsonResponse(
+      Response,
+      200,
+      true,
+      message.common.updateSuccessfully,
+      `data deleted: ${deleteResult}`
+    );
+  } catch (error) {
     return jsonResponse(
       Response,
       500,

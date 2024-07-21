@@ -3,8 +3,12 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import InputFilled from "@/components/InputFilled";
+import { http } from "@/utils/axiosInstance";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const page = () => {
+  const router = useRouter();
   const [details, setDetails] = useState({
     email: "",
     password: "",
@@ -16,15 +20,18 @@ const page = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    http.post("/login", details).then((res) => {
-      setDetails({ email: "", password: "" });
-      if (!res.data.data.verified) {
-        router.push("/verify");
-      } else {
-        router.push("/");
-      }
-      toast.success(res.data.message);
-    });
+    http
+      .post("/login", { ...details, email: details.email.toLowerCase() })
+      .then((res) => {
+        console.log(res)
+        if (!res.data.data.verified) {
+          router.push("/verify");
+        } else {
+          router.push("/");
+        }
+        toast.success(res.data.message);
+        setDetails({ email: "", password: "" });
+      });
 
     setDetails({ email: "", password: "" });
   };
@@ -41,6 +48,7 @@ const page = () => {
       type: "password",
       value: details.password,
       required: true,
+      minLength:5
     },
   ];
 
@@ -74,7 +82,7 @@ const page = () => {
           type="submit"
           className="uppercase bg-black w-full text-white py-2 text-[14px] rounded-md mt-2"
         >
-          create account
+          login
         </button>
       </form>
 

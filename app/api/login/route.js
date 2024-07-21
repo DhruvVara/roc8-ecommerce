@@ -1,3 +1,4 @@
+import { sendEmail } from "@/utils/emailService";
 import generateOTP from "@/utils/generateOTP";
 import { jsonResponse } from "@/utils/jsonResponse";
 import { message } from "@/utils/message";
@@ -14,10 +15,19 @@ export async function POST(req) {
   try {
     const { email, password } = await req.json();
 
+    if (!password || password.length < 5) {
+      return jsonResponse(
+        Response,
+        400,
+        success,
+        message.common.passwordLength
+      );
+    }
+
     // Checking email exist or not
     const user = await prisma.user.findUnique({
       where: {
-        email,
+        email: email.toLowerCase(),
       },
       include: { categories: true },
     });
@@ -39,15 +49,20 @@ export async function POST(req) {
     }
 
     const payload = {
-      email: user.email,
+      email: user.email.toLowerCase(),
       id: user._id,
       verified: user.verified,
     };
 
     const token = sign(payload, process.env.JWT_SECRET);
 
+    cookies().set("token", token, { maxAge: 1000, secure: true });
+    success = true;
+
     if (!user.verified) {
       const generateOtp = generateOTP();
+
+      sendEmail(email, "Verify your email", `<h3>OTP : ${generateOtp}</h3>`);
 
       await prisma.user.update({
         where: {
@@ -57,11 +72,9 @@ export async function POST(req) {
           otp: generateOtp,
         },
       });
+
+      return jsonResponse(Response, 200, success, message.user.emailSent);
     }
-
-    success = true;
-
-    cookies().set("token", token, { maxAge: 1000, secure: true });
 
     return jsonResponse(
       Response,

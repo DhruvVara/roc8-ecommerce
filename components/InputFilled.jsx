@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  IoEyeOutline,
-  IoEyeOffOutline,
-} from "react-icons/io5";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 
 const InputFilled = ({
   title = "Title",
@@ -14,6 +11,8 @@ const InputFilled = ({
   name = "",
   placeholder,
   required = false,
+  minLength = "",
+  maxLength = "",
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(true);
 
@@ -41,14 +40,16 @@ const InputFilled = ({
           value={value}
           onChange={(e) => handleChange(e)}
           required={required}
+          minLength={minLength}
+          maxLength={maxLength}
         />
 
         {type == "password" && (
           <div
-            className=" text-[1.2rem] py-[2px] text-gray-600 cursor-pointer"
+            className=" text-[0.8rem] py-[2px] text-gray-600 cursor-pointer underline"
             onClick={() => setIsPasswordVisible(!isPasswordVisible)}
           >
-            {!isPasswordVisible ? <IoEyeOffOutline /> : <IoEyeOutline />}
+            {isPasswordVisible ? "Show" : "Hide"}
           </div>
         )}
       </div>

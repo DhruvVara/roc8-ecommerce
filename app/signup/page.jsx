@@ -3,8 +3,12 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import InputFilled from "@/components/InputFilled";
+import { http } from "@/utils/axiosInstance";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const page = () => {
+  const router = useRouter();
   const [details, setDetails] = useState({
     name: "",
     email: "",
@@ -12,9 +16,7 @@ const page = () => {
   });
 
   const handleChange = (e) => {
-    e.preventDefault();
-
-    setInp({ ...details, [e.target.name]: e.target.value });
+    setDetails({ ...details, [e.target.name]: e.target.value });
   };
 
   const fields = [
@@ -23,6 +25,7 @@ const page = () => {
       type: "text",
       value: details.name,
       required: true,
+      minLength: 3,
     },
     {
       title: "Email",
@@ -35,24 +38,21 @@ const page = () => {
       type: "password",
       value: details.password,
       required: true,
+      minLength: 5,
     },
   ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    http.post("/signup", details).then((res) => {
-      setDetails({ email: "", password: "" });
-
-      router.push("/verify");
-
-      toast.success(res.data.message);
-    });
-
-    setDetails({ email: "", password: "" });
-
-    router.push("/verify");
-
-    setDetails({ name: "", email: "", password: "" });
+    http
+      .post("/signup", { ...details, email: details.email.toLowerCase() })
+      .then((res) => {
+        if (!res.error) {
+          router.push("/verify");
+          toast.success(res.data.message);
+          setDetails({ email: "", password: "", name: "" });
+        }
+      });
   };
 
   return (
